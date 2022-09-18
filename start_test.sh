@@ -36,15 +36,15 @@ kubectl exec -ti -n $tenant $master_pod -- /bin/bash /jmeter/load_test "$test_na
 # echo "Tenant var: $tenant"
 # echo "Master_Pod var: $master_pod"
 
-if [ -f "$FILE.csv" ]; then
+if [ -f "Output/$FILE.csv" ]; then
     echo "Found existing Local Test File: [$FILE.csv], removing..."
-    rm "$FILE.csv"
+    rm "Output/$FILE.csv"
 fi
 
-if [ -d "$FILE" ]; then
+if [ -d "Output/$FILE" ]; then
     echo "Found exisiting Local Test Output folder [/$FILE], removing..."
-    rm -r "$FILE"
+    rm -r "Output/$FILE"
 fi
 
-kubectl cp "$tenant/$master_pod:$FILE.csv" "$FILE.csv"
-kubectl cp "$tenant/$master_pod:/$FILE" "$FILE"
+kubectl cp "$tenant/$master_pod:$FILE.csv" "Output/$FILE.csv"
+kubectl cp "$tenant/$master_pod:$FILE" "Output/$FILE"
