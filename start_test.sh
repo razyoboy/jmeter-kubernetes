@@ -18,6 +18,7 @@ then
     exit
 fi
 
+FILE=${jmx/.jmx/}
 test_name="$(basename "$jmx")"
 
 #Get Master pod details
@@ -27,5 +28,23 @@ master_pod=`kubectl get po -n $tenant | grep jmeter-master | awk '{print $1}'`
 kubectl cp "$jmx" -n $tenant "$master_pod:/$test_name"
 
 ## Echo Starting Jmeter load test
+echo "Passing test file as: $jmx"
+kubectl exec -ti -n $tenant $master_pod -- /bin/bash /jmeter/load_test "$test_name"
 
-kubectl exec -ti -n $tenant $master_pod -- /bin/bash /load_test "$test_name"
+## Copy the log .csv file and report back to local machine
+
+# echo "Tenant var: $tenant"
+# echo "Master_Pod var: $master_pod"
+
+if [ -f "$FILE.csv" ]; then
+    echo "Found existing Local Test File: [$FILE.csv], removing..."
+    rm "$FILE.csv"
+fi
+
+if [ -d "$FILE" ]; then
+    echo "Found exisiting Local Test Output folder [/$FILE], removing..."
+    rm -r "$FILE"
+fi
+
+kubectl cp "$tenant/$master_pod:$FILE.csv" "$FILE.csv"
+kubectl cp "$tenant/$master_pod:/$FILE" "$FILE"
