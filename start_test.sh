@@ -29,7 +29,7 @@ kubectl cp "$jmx" -n $tenant "$master_pod:/$test_name"
 
 ## Echo Starting Jmeter load test
 echo "Passing test file as: $jmx"
-kubectl exec -ti -n $tenant $master_pod -- /bin/bash /jmeter/load_test "$test_name"
+kubectl exec -ti -n $tenant $master_pod -- /bin/bash /load_test "$test_name"
 
 ## Copy the log .csv file and report back to local machine
 
