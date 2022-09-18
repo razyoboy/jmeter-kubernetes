@@ -9,4 +9,36 @@ data:
     #!/bin/bash
     #Script created to invoke jmeter test script with the slave POD IP addresses
     #Script should be run like: ./load_test "path to the test script in jmx format"
-    /jmeter/apache-jmeter-*/bin/jmeter -n -t $1 -Dserver.rmi.ssl.disable=true -R `getent ahostsv4 jmeter-slaves-svc | cut -d' ' -f1 | sort -u | awk -v ORS=, '{print $1}' | sed 's/,$//'`
+
+    jmx=$1
+    FILE=${jmx/.jmx/}
+
+    # Check if .csv OR output folder exists
+
+    if [ -f "$FILE.csv" ]; then
+      echo "Found existing $FILE.csv, removing..."
+      rm "$FILE.csv"
+    fi
+
+    if [ -d "$FILE" ]; then
+      echo "Found exisiting output folder [/$FILE], removing..."
+      rm -r "$FILE"
+    fi
+
+    /jmeter/apache-jmeter-*/bin/jmeter -n -t $1 -Dserver.rmi.ssl.disable=true -l $FILE.csv -e $FILE -R `getent ahostsv4 jmeter-slaves-svc | cut -d' ' -f1 | sort -u | awk -v ORS=, '{print $1}' | sed 's/,$//'`
+
+    # [0] $1 refers to our jmx file, the first positional args passed here
+
+    # [1] getent ahostsv4 would get the ip && 'names' of the ips:
+    
+    # 33.231.3.32   slave-1
+    # 33.231.4.21   slave-2
+    # 33.231.5.65   slave-3
+
+    # [2] cut -d' ' -f1 would remove these so that:
+    # 33.231.3.32
+    # 33.231.4.21
+    # 33.231.5.65
+
+    # [3] sort -u elminate duplicates, if any
+    # [4] sed removes ',$' and replaces it with NULL (remove)
