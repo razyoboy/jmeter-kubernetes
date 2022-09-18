@@ -46,5 +46,5 @@ if [ -d "Output/$FILE" ]; then
     rm -r "Output/$FILE"
 fi
 
-kubectl cp "$tenant/$master_pod:$FILE.csv" "Output/$FILE.csv"
-kubectl cp "$tenant/$master_pod:$FILE" "Output/$FILE"
+kubectl cp --retries=-1 "$tenant/$master_pod:$FILE.csv" "Output/$FILE.csv"
+kubectl cp --retries=-1 "$tenant/$master_pod:$FILE" "Output/$FILE"
